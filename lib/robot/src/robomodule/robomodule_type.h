@@ -1,0 +1,8 @@
+#define ROBOMODULE_OPENLOOP_MODE                  (0x01)
+#define ROBOMODULE_CURRENT_MODE                   (0x02)
+#define ROBOMODULE_VELOCITY_MODE                  (0x03)
+#define ROBOMODULE_POSITION_MODE                  (0x04)
+#define ROBOMODULE_VELOCITY_POSITION_MODE         (0x05)
+#define ROBOMODULE_CURRENT_VELOCITY_MODE          (0x06)
+#define ROBOMODULE_CURRENT_POSITION_MODE          (0x07)
+#define ROBOMODULE_CURRENT_VELOCITY_POSITION_MODE (0x08)
