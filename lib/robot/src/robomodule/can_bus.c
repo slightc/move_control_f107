@@ -15,6 +15,7 @@
 
 #define GET_INT16_H(value) ((uint8_t)((value>>8)&0xff))
 #define GET_INT16_L(value) ((uint8_t)((value)&0xff))
+#define GET_DATA_SHFIT(value,bits) ((uint8_t)((value>>bits)&0xff))
 
 /** 
  * robomodule通信中使用的can_handle指针 
@@ -119,7 +120,8 @@ uint8_t robomodule_can_reset(uint8_t group, uint8_t number, uint32_t timeout)
  * @param timeout 超时时间(ms 0~0xffff)
  * @return uint8_t errCode 错误码
  */
-uint8_t robomodule_can_set_mode(uint8_t group, uint8_t number, uint8_t mode, uint32_t timeout)
+uint8_t robomodule_can_set_mode(uint8_t group, uint8_t number, 
+                                    uint8_t mode, uint32_t timeout)
 {
     uint8_t can_data[8];
 
@@ -134,18 +136,16 @@ uint8_t robomodule_can_set_mode(uint8_t group, uint8_t number, uint8_t mode, uin
 }
 
 /**
- * @brief 设置robomodule开环模式时的pwm
+ * @brief 开环模式时设置robomodule的输出pwm
  * 
-
- * @param timeout 
- * @return uint8_t 
  * @param group 指定组(0~7)
  * @param number 指定驱动(0~15) 0为广播数据
  * @param pwm pwm输出值(-5000~5000) pwm值为5000时,输出电压为电源电压
  * @param timeout 超时时间(ms 0~0xffff)
  * @return uint8_t errCode 错误码
  */
-uint8_t robomodule_can_openloop_mode(uint8_t group, uint8_t number, int16_t pwm, uint32_t timeout)
+uint8_t robomodule_can_openloop_mode(uint8_t group, uint8_t number, 
+                                        int16_t pwm, uint32_t timeout)
 {
     uint8_t can_data[8];
 
@@ -161,5 +161,96 @@ uint8_t robomodule_can_openloop_mode(uint8_t group, uint8_t number, int16_t pwm,
     
     /** 发送can数据 */
     return robomodule_can_send(ROBOMODULE_OPENLOOP_ID,can_data,
+        group,number,timeout);
+}
+
+/**
+ * @brief 电流模式时设置robomodule的最大输出pwm和电机电流
+ * 
+ * @param group 指定组(0~7)
+ * @param number 指定驱动(0~15) 0为广播数据
+ * @param max_pwm 最大pwm输出值(0~5000) pwm值为5000时,输出电压为电源电压
+ * @param current 电机电流(-32768~+32767) 单位mA
+ * @param timeout 超时时间(ms 0~0xffff)
+ * @return uint8_t errCode 错误码
+ */
+uint8_t robomodule_can_current_mode(uint8_t group, uint8_t number, 
+                        int16_t max_pwm, int16_t current, uint32_t timeout)
+{
+    uint8_t can_data[8];
+
+    /** 限制pwm数据值 */
+    if(max_pwm < 0) max_pwm =-max_pwm;
+    if(max_pwm > 5000) max_pwm = 5000;
+
+    /** 设置can负载数据 */
+    set_array8_value(can_data,
+        GET_INT16_H(max_pwm),GET_INT16_L(max_pwm),
+        GET_INT16_H(current),GET_INT16_L(current),
+        0x55,0x55,0x55,0x55);
+    
+    /** 发送can数据 */
+    return robomodule_can_send(ROBOMODULE_CURRENT_ID,can_data,
+        group,number,timeout);
+}
+
+/**
+ * @brief 速度模式时设置robomodule的最大输出pwm和电机转速
+ * 
+ * @param group 指定组(0~7)
+ * @param number 指定驱动(0~15) 0为广播数据
+ * @param max_pwm 最大pwm输出值(0~5000) pwm值为5000时,输出电压为电源电压
+ * @param velocity 电机转速(-32768~+32767) 单位RPM
+ * @param timeout 超时时间(ms 0~0xffff)
+ * @return uint8_t errCode 错误码
+ */
+uint8_t robomodule_can_velocity_mode(uint8_t group, uint8_t number, 
+                        int16_t max_pwm, int16_t velocity, uint32_t timeout)
+{
+    uint8_t can_data[8];
+
+    /** 限制pwm数据值 */
+    if(max_pwm < 0) max_pwm =-max_pwm;
+    if(max_pwm > 5000) max_pwm = 5000;
+
+    /** 设置can负载数据 */
+    set_array8_value(can_data,
+        GET_INT16_H(max_pwm) ,GET_INT16_L(max_pwm),
+        GET_INT16_H(velocity),GET_INT16_L(velocity),
+        0x55,0x55,0x55,0x55);
+    
+    /** 发送can数据 */
+    return robomodule_can_send(ROBOMODULE_VELOCITY_ID,can_data,
+        group,number,timeout);
+}
+
+/**
+ * @brief 位置模式时设置robomodule的最大输出pwm和当前电机位置
+ * 
+ * @param group 指定组(0~7)
+ * @param number 指定驱动(0~15) 0为广播数据
+ * @param max_pwm 最大pwm输出值(0~5000) pwm值为5000时,输出电压为电源电压
+ * @param position 电机位置(-2147483648~+2147483647) 单位qc(4倍编码器值)
+ * @param timeout 超时时间(ms 0~0xffff)
+ * @return uint8_t errCode 错误码
+ */
+uint8_t robomodule_can_position_mode(uint8_t group, uint8_t number, 
+                        int16_t max_pwm, int32_t position, uint32_t timeout)
+{
+    uint8_t can_data[8];
+
+    /** 限制pwm数据值 */
+    if(max_pwm < 0) max_pwm =-max_pwm;
+    if(max_pwm > 5000) max_pwm = 5000;
+
+    /** 设置can负载数据 */
+    set_array8_value(can_data,
+        GET_INT16_H(max_pwm) ,GET_INT16_L(max_pwm),
+        0x55,0x55,
+        GET_DATA_SHFIT(position,24),GET_DATA_SHFIT(position,16),
+        GET_DATA_SHFIT(position,8), GET_DATA_SHFIT(position,0));
+    
+    /** 发送can数据 */
+    return robomodule_can_send(ROBOMODULE_POSITION_ID,can_data,
         group,number,timeout);
 }
