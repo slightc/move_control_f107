@@ -3,6 +3,11 @@
 #include "pinmux/pin_to_can.h"
 #include "periphe/can.h"
 #include "robomodule/can_bus.h"
+#include "cmsis_os.h"
+
+osThreadId defaultTaskHandle;
+
+osThreadDef(defaultTask, NULL, osPriorityNormal, 0, 128);
 
 void LED_Init();
 
@@ -26,6 +31,7 @@ int main(void) {
     HAL_Delay(1);
     robomodule_can_openloop_mode(0,1,2000,10);
 
+    
     while (1)
     {
         HAL_Delay(500);
