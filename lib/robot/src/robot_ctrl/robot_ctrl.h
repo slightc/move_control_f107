@@ -34,6 +34,9 @@ extern "C"
     } ChasisParams;
 
     /**  @} */
+    bool Chasis_DiffMode_CalRpmOut(ChasisParams chasis, double *current_move_vel, double *current_rotate_vel,
+                                   double target_move_velocity, double target_rotate_velocity, double move_acc,
+                                   double rotate_acc, double *out_rpm);
 
     bool Chasis_DiffMode_WithTwoMotors(double linear_velocity, double rotate_velocity,
                                        double wheels_distanse, double *out_velocity);
@@ -47,8 +50,8 @@ extern "C"
     bool Chasis_Mecanum_WithFourMotors(double linear_velocity, double move_angle, double rotate_velocity,
                                        double axis_distanse, double wheels_distanse, double *out_velocity);
 
-    signed short int Motor_MetersPerSecondToRPM( double m_move_velocity, float gear, double radius );
-    double Motor_RPMToMetersPerSecond( signed short int rmp, float gear, double radius );
+    signed short int Motor_MetersPerSecondToRPM(double m_move_velocity, float gear, double radius);
+    double Motor_RPMToMetersPerSecond(signed short int rmp, float gear, double wheels_radius);
     double ChasisCommon_RadToDegree(double rad);
     double ChasisCommon_DegreeToRad(double degree);
 
