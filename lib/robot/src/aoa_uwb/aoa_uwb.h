@@ -6,7 +6,7 @@ extern "C"
 {
 #endif
 
-#define GetUsartRece(unsigned char *c) 
+// #define GetUsartRece(unsigned char *c) 
 
 #include "string.h"
 #define AOA_SOF 0x59

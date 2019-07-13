@@ -19,6 +19,7 @@ void led_blinkly(void const *argument){
 	for (;;)
     {   
         HAL_UART_Transmit(p_huart1,send_str,10,5);
+        uart_read(USART1,send_str,10,10);
         HAL_GPIO_TogglePin(LED_GPIO_PORT,LED_PIN);
         osDelay(1000);
     }

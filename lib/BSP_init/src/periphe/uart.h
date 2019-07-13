@@ -11,6 +11,9 @@
 
 UART_HandleTypeDef* get_uartx_handle(USART_TypeDef *UARTx);
 uint8_t uart_init(USART_TypeDef *UARTx, uint32_t baud_rate);
-uint8_t uart_read(UART_HandleTypeDef *phuart, uint8_t *buffer, uint8_t len, uint32_t timeout);
+uint8_t uart_read(USART_TypeDef *UARTx, uint8_t *buffer, uint8_t len, uint32_t timeout);
+
+void USART1_IRQHandler(void);
+void HAL_UART_RxCpltCallback(UART_HandleTypeDef* huart);
 
 #endif
