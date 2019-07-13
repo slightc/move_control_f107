@@ -37,7 +37,16 @@ uint8_t uart_init(USART_TypeDef *UARTx, uint32_t baud_rate)
     return HAL_UART_Init(p_huart);
 }
 
-uint8_t uart_read(USART_TypeDef *UARTx, uint8_t len, uint32_t timeout)
+/**
+ * @brief 读取串口
+ * 
+ * @param phuart 串口操作句柄
+ * @param buffer 数据读出的地址指针
+ * @param len 读数据的长度
+ * @param timeout 读取超时 单位ms
+ * @return uint8_t 读取到的数据长度
+ */
+uint8_t uart_read(UART_HandleTypeDef *phuart, uint8_t *buffer, uint8_t len, uint32_t timeout)
 {
-    
+
 }
