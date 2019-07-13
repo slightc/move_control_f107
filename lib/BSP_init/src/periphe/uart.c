@@ -60,6 +60,10 @@ uint8_t uart_start_recive(USART_TypeDef *UARTx)
         HAL_NVIC_SetPriority(USART1_IRQn, 4, 0);
         HAL_NVIC_EnableIRQ(USART1_IRQn);
     }
+    if(UARTx==USART2){
+        HAL_NVIC_SetPriority(USART2_IRQn, 3, 0);
+        HAL_NVIC_EnableIRQ(USART2_IRQn);
+    }
     HAL_UART_Receive_IT(huart,get_uartx_rx_buffer(huart->Instance),RX_BUFFER_SIZE);
 }
 
@@ -108,17 +112,15 @@ uint8_t uart_read(USART_TypeDef *UARTx, uint8_t *buffer, uint8_t len, uint32_t t
 
     if(data_len>len) data_len =len;
     for(uint8_t i=0;i<data_len;i++){
-        *(buffer+i) = rx_buffer[(*p_pos)%huart->RxXferSize];
-        *p_pos = *p_pos + 1;
+        *(buffer+i) = rx_buffer[(*p_pos)];
+        *p_pos = (*p_pos + 1)%huart->RxXferSize;
     }
     return data_len;
 }
 
-
-void USART1_IRQHandler(void)
-{
-    UART_HandleTypeDef *huart = get_uartx_handle(USART1);
-    uint8_t *p_pos = get_uartx_rx_buffer_position(USART1);
+void User_UART_IRQHandler(USART_TypeDef *UARTx){
+    UART_HandleTypeDef *huart = get_uartx_handle(UARTx);
+    uint8_t *p_pos = get_uartx_rx_buffer_position(UARTx);
     uint32_t isrflags   = READ_REG(huart->Instance->SR);
     uint32_t cr1its     = READ_REG(huart->Instance->CR1);
     uint32_t cr3its     = READ_REG(huart->Instance->CR3);
@@ -131,6 +133,16 @@ void USART1_IRQHandler(void)
             *p_pos = (now_position + 1) % huart->RxXferSize;
         }
     }
+}
+
+void USART1_IRQHandler(void)
+{
+    User_UART_IRQHandler(USART1);
+}
+
+void USART2_IRQHandler(void)
+{
+    User_UART_IRQHandler(USART2);
 }
 
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef* huart)
