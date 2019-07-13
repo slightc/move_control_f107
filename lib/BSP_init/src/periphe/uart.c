@@ -36,3 +36,8 @@ uint8_t uart_init(USART_TypeDef *UARTx, uint32_t baud_rate)
 
     return HAL_UART_Init(p_huart);
 }
+
+uint8_t uart_read(USART_TypeDef *UARTx, uint8_t len, uint32_t timeout)
+{
+    
+}
