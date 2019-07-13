@@ -83,6 +83,23 @@ uint8_t uart_init(USART_TypeDef *UARTx, uint32_t baud_rate)
     return 1;
 }
 
+uint8_t get_uart_rx_count(USART_TypeDef *UARTx)
+{
+    UART_HandleTypeDef *huart = get_uartx_handle(UARTx);
+    uint8_t *p_pos = get_uartx_rx_buffer_position(UARTx);
+    uint8_t data_len;
+    uint8_t now_position;
+
+    now_position = huart->RxXferSize - huart->RxXferCount;
+    if(now_position<(*p_pos)){
+        data_len = huart->RxXferSize + now_position - (*p_pos);
+    }else{
+        data_len = now_position - (*p_pos);
+    }
+
+    return data_len;
+}
+
 /**
  * @brief 读取串口
  * 
@@ -94,7 +111,7 @@ uint8_t uart_init(USART_TypeDef *UARTx, uint32_t baud_rate)
  */
 uint8_t uart_read(USART_TypeDef *UARTx, uint8_t *buffer, uint8_t len, uint32_t timeout)
 {
-    UART_HandleTypeDef *huart = get_uartx_handle(USART1);
+    UART_HandleTypeDef *huart = get_uartx_handle(UARTx);
     uint8_t *rx_buffer = get_uartx_rx_buffer(huart->Instance);
     uint8_t *p_pos = get_uartx_rx_buffer_position(UARTx);
     uint8_t data_len;
@@ -156,5 +173,44 @@ void HAL_UART_ErrorCallback(UART_HandleTypeDef *huart)
     HAL_UART_Transmit(huart,msg,5,100);
 }
 
+void uart_ptint(USART_TypeDef *UARTx, char *str,int data,int mode)
+{
+    UART_HandleTypeDef *huart = get_uartx_handle(UARTx);
+    uint16_t len=strlen(str);
+    uint8_t buffer[32];
+    uint8_t end[] = "\n";
 
+	HAL_UART_Transmit(huart,str,len,10);
+	itoa((int)data, buffer, mode);
+    len=strlen(buffer);
+    HAL_UART_Transmit(huart,buffer,len,10);
+    len=strlen(end);
+    HAL_UART_Transmit(huart,end,len,10);
+}
+
+// int tenpow(int len)
+// {
+// 	int data = 1;
+// 	while (len--)
+// 		data = 10*data;
+// 	return data;
+// }
+
+// void usart_ptintf(USART_TypeDef *UARTx, char *str, float data, int len)
+// {
+//     UART_HandleTypeDef *huart = get_uartx_handle(UARTx);
+//     uint16_t len=strlen(str);
+//     uint8_t buffer[32];
+
+//     HAL_UART_Transmit(huart,str,len,10);
+// 	itoa((int)data, buffer, 10);
+// 	if (len)
+// 	{
+// 		strncat(buffer, ".", 1);
+// 		itoa((int)((data - (int)data) * tenpow(len)), stradd, 10);
+// 		strncat(buffer, stradd, 10);
+// 	}
+// 	usart2_send(buffer);
+// 	usart2_send("\n");
+// }
 

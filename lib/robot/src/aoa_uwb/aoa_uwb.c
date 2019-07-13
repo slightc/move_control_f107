@@ -1,6 +1,6 @@
 #include "aoa_uwb.h"
 
-static AOA_FollowTag_t aoa_tag;
+static AOA_Report_t aoa_tag;
     /**
  * @briefaucCRCHi：
  * 
@@ -87,9 +87,9 @@ unsigned short Get_Crc16(unsigned char *pucFrame, unsigned char usLen)
  * 
  * @return ** AOA_FollowTag_t  current aog
  */ 
-AOA_FollowTag_t AOA_GetMsg(void)
+AOA_Report_t *AOA_GetMsg(void)
 {
-    return aoa_tag;
+    return &aoa_tag;
 }
 
 /**
@@ -100,7 +100,6 @@ AOA_FollowTag_t AOA_GetMsg(void)
 void AOA_Tag_Handler(void)
 {
     unsigned char buffer_lens;
-    UART_HandleTypeDef *p_huart1;
     unsigned char data_buff;
     unsigned int read_data_len;
 
@@ -110,19 +109,19 @@ void AOA_Tag_Handler(void)
     if (buffer_lens > AOA_REPORT_LEN)
     {
         //读取一个字节，判断是不是数据头部
-        read_data_len = uart_read(p_huart1, &data_buff, 1, 10);
+        read_data_len = uart_read(USART2, &data_buff, 1, 10);
         if (read_data_len == 1 && data_buff == AOA_SOF)
         {
             //读取跟随模块的数据的长度，并判断长度是不是19
-            read_data_len = uart_read(p_huart1, &data_buff, 1, 10);
+            read_data_len = uart_read(USART2, &data_buff, 1, 10);
             if (read_data_len == 1 && data_buff == AOA_REPORT_LEN)
             {   
                 //读取数据类型，判断是否是AOA_REPORT指令类型
-                read_data_len = uart_read(p_huart1, &data_buff, 1, 10);
+                read_data_len = uart_read(USART2, &data_buff, 1, 10);
                 if (read_data_len == 1 && data_buff == AOA_REPORT)
                 {
                     //读取数据域内容
-                    read_data_len = uart_read(p_huart1, (unsigned char *)&aoa_tag, AOA_REPORT_LEN-3,10);
+                    read_data_len = uart_read(USART2, (unsigned char *)&aoa_tag, AOA_REPORT_LEN-3,10);
                 }
             }
         }

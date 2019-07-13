@@ -7,21 +7,31 @@
 #include "robomodule/can_bus.h"
 #include "cmsis_os.h"
 #include "stm32f1xx_it.h"
+#include "aoa_uwb/aoa_uwb.h"
+
+#define CHG_INT16_HL(n) ( ((n&0xff)<<8) |((n>>8)&0xff) )
 
 osThreadId defaultTaskHandle;
 
 void led_blinkly(void const *argument){
     UART_HandleTypeDef *p_huart1;
-    uint8_t send_str[] = "qweasdzxc\n";
+    uint8_t send_str[] = "qweasdzxc";
+    AOA_Report_t *p=NULL;
   
     (void) argument;
     p_huart1 = GET_UART1_HANDLE();
 	for (;;)
     {   
-        uart_read(USART1,send_str,10,10);
-        HAL_UART_Transmit(p_huart1,send_str,10,5);
+        for(uint8_t i=0;i<100;i++){
+            AOA_Tag_Handler();
+        }
+        p = AOA_GetMsg();
+        // uart_read(USART2,send_str,10,10);
+        // HAL_UART_Transmit(p_huart1,p,16,5);
+        uart_ptint(USART1,"d:",CHG_INT16_HL(p->distance),10);
+        uart_ptint(USART1,"a:",CHG_INT16_HL(p->angle),10);
         HAL_GPIO_TogglePin(LED_GPIO_PORT,LED_PIN);
-        osDelay(1000);
+        osDelay(500);
     }
 }
 
@@ -41,9 +51,11 @@ int main(void) {
     /** pinmux */
     PD1_PD0_TO_CAN();
     PB6_PB7_TO_UART1();
+    PD5_PD6_TO_UART2();
     /** periphe */
     BSP_CAN1_INIT();
     BSP_UART1_INIT();
+    BSP_UART2_INIT();
 
     osThreadDef(defaultTask, led_blinkly, osPriorityNormal, 0, 128);
     defaultTaskHandle = osThreadCreate(osThread(defaultTask),NULL);
