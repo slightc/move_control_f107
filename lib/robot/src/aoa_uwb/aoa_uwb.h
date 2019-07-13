@@ -6,13 +6,15 @@ extern "C"
 {
 #endif
 
-#define GetUsartRece(unsigned char *c) 
-
 #include "string.h"
+#include "periphe/uart.h" 
+
+#define GET_BUFFER_LEN() (1)
 #define AOA_SOF 0x59
 #define AOA_EOF 0x47
 #define AOA_REPORT 0x63
 #define AOA_REQUEST 0x64
+#define AOA_REPORT_LEN 19
 
     /**
      * @brief sof:侦起始符
@@ -21,9 +23,9 @@ extern "C"
      */
     typedef struct
     {
-        unsigned char sof;
-        unsigned char length;
-        unsigned char type;
+        //unsigned char sof;
+        //unsigned char length;
+        //unsigned char type;
         unsigned char frame_index;
         char rx_rssi_first;
         char rx_rssi_all;
