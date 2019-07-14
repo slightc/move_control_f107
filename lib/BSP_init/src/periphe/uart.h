@@ -3,6 +3,7 @@
 
 #include "stm32f1xx.h"
 #include <stm32f1xx_hal.h>
+#include "cmsis_os.h"
 
 #define GET_UART1_HANDLE() get_uartx_handle(USART1)
 #define BSP_UART1_INIT() \

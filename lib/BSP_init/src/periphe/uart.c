@@ -1,10 +1,18 @@
 #include "uart.h"
 
 #define RX_BUFFER_SIZE (50)
+#define TO_USER_UART_HANDLE(phuart) ((User_UART_HandleTypeDef *)(phuart))
+#define TO_UART_HANDLE(pUserhuart) ((UART_HandleTypeDef *)(pUserhuart))
 
-static UART_HandleTypeDef huart[5];
-static uint8_t uart_rx_buffer[5][RX_BUFFER_SIZE];
-static uint8_t uart_rx_buffer_position[5]={0};
+typedef struct User_UART_Handle_sct{
+    UART_HandleTypeDef huart;
+    uint8_t uart_rx_buffer[RX_BUFFER_SIZE];
+    uint8_t uart_rx_buffer_position;
+    osSemaphoreDef_t rx_semaphore;
+    osSemaphoreId rx_semaphore_id;
+}User_UART_HandleTypeDef;
+
+static User_UART_HandleTypeDef user_huart[5];
 
 int8_t get_uartx_index(USART_TypeDef *UARTx)
 {
@@ -29,7 +37,7 @@ UART_HandleTypeDef* get_uartx_handle(USART_TypeDef *UARTx)
     if(index==-1){
         return NULL;
     }else{
-        return (huart+index);
+        return TO_UART_HANDLE(user_huart+index);
     }
 }
 
@@ -39,7 +47,7 @@ uint8_t *get_uartx_rx_buffer(USART_TypeDef *UARTx)
     if(index==-1){
         return NULL;
     }else{
-        return (uart_rx_buffer[index]);
+        return ((user_huart+index)->uart_rx_buffer);
     }
 }
 
@@ -49,13 +57,14 @@ uint8_t *get_uartx_rx_buffer_position(USART_TypeDef *UARTx)
     if(index==-1){
         return NULL;
     }else{
-        return (uart_rx_buffer_position+index);
+        return &((user_huart+index)->uart_rx_buffer_position);
     }
 }
 
 uint8_t uart_start_recive(USART_TypeDef *UARTx)
 {
     UART_HandleTypeDef *huart = get_uartx_handle(UARTx);
+    User_UART_HandleTypeDef * user_huart = TO_USER_UART_HANDLE(huart);
     if(UARTx==USART1){
         HAL_NVIC_SetPriority(USART1_IRQn, 4, 0);
         HAL_NVIC_EnableIRQ(USART1_IRQn);
@@ -64,6 +73,8 @@ uint8_t uart_start_recive(USART_TypeDef *UARTx)
         HAL_NVIC_SetPriority(USART2_IRQn, 3, 0);
         HAL_NVIC_EnableIRQ(USART2_IRQn);
     }
+    user_huart->uart_rx_buffer_position = 0;
+    user_huart->rx_semaphore_id = osSemaphoreCreate(&(user_huart->rx_semaphore),1);
     HAL_UART_Receive_IT(huart,get_uartx_rx_buffer(huart->Instance),RX_BUFFER_SIZE);
 }
 
@@ -118,14 +129,13 @@ uint8_t uart_read(USART_TypeDef *UARTx, uint8_t *buffer, uint8_t len, uint32_t t
     uint8_t now_position;
     uint32_t start_time = HAL_GetTick();
     
-    do{
-        now_position = huart->RxXferSize - huart->RxXferCount;
-        if(now_position<(*p_pos)){
-            data_len = huart->RxXferSize + now_position - (*p_pos);
-        }else{
-            data_len = now_position - (*p_pos);
+    data_len = get_uart_rx_count(UARTx);
+    while ((data_len<len) && ( HAL_GetTick()-start_time ) < timeout){
+        if(osKernelRunning()==1){
+            osSemaphoreWait((TO_USER_UART_HANDLE(huart)->rx_semaphore_id),(timeout/len + 1));
         }
-    }while ((data_len<len) && ( HAL_GetTick()-start_time ) < timeout);
+        data_len = get_uart_rx_count(UARTx);
+    }
 
     if(data_len>len) data_len =len;
     for(uint8_t i=0;i<data_len;i++){
@@ -148,6 +158,9 @@ void User_UART_IRQHandler(USART_TypeDef *UARTx){
         now_position = huart->RxXferSize - huart->RxXferCount;
         if(now_position==(*p_pos)){
             *p_pos = (now_position + 1) % huart->RxXferSize;
+        }
+        if(osKernelRunning()==1){
+            osSemaphoreRelease((TO_USER_UART_HANDLE(huart)->rx_semaphore_id));
         }
     }
 }
