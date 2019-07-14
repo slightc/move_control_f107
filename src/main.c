@@ -12,8 +12,19 @@
 #define CHG_INT16_HL(n) ( ((n&0xff)<<8) |((n>>8)&0xff) )
 
 osThreadId defaultTaskHandle;
+osThreadId uartTaskHandle;
 
 void led_blinkly(void const *argument){
+  
+    (void) argument;
+	for (;;)
+    {   
+        HAL_GPIO_TogglePin(LED_GPIO_PORT,LED_PIN);
+        osDelay(500);
+    }
+}
+
+void uart_test(void const *argument){
     UART_HandleTypeDef *p_huart1;
     uint8_t send_str[] = "qweasdzxc";
     AOA_Report_t *p=NULL;
@@ -22,19 +33,17 @@ void led_blinkly(void const *argument){
     p_huart1 = GET_UART1_HANDLE();
 	for (;;)
     {   
-        for(uint8_t i=0;i<100;i++){
-            AOA_Tag_Handler();
-        }
-        p = AOA_GetMsg();
-        // uart_read(USART2,send_str,10,10);
-        // HAL_UART_Transmit(p_huart1,p,16,5);
-        uart_ptint(USART1,"d:",CHG_INT16_HL(p->distance),10);
-        uart_ptint(USART1,"a:",CHG_INT16_HL(p->angle),10);
-        HAL_GPIO_TogglePin(LED_GPIO_PORT,LED_PIN);
+        // for(uint8_t i=0;i<100;i++){
+        //     AOA_Tag_Handler();
+        // }
+        // p = AOA_GetMsg();
+        uart_read(USART1,send_str,10,10000);
+        HAL_UART_Transmit(p_huart1,send_str,10,5);
         osDelay(500);
+        // uart_ptint(USART1,"d:",CHG_INT16_HL(p->distance),10);
+        // uart_ptint(USART1,"a:",CHG_INT16_HL(p->angle),10);
     }
 }
-
 
 void LED_Init();
 
@@ -57,7 +66,9 @@ int main(void) {
     BSP_UART1_INIT();
     BSP_UART2_INIT();
 
+    osThreadDef(uartTask, uart_test, osPriorityNormal, 0, 128);
     osThreadDef(defaultTask, led_blinkly, osPriorityNormal, 0, 128);
+    uartTaskHandle = osThreadCreate(osThread(uartTask),NULL);
     defaultTaskHandle = osThreadCreate(osThread(defaultTask),NULL);
 
     // p_can1 = GET_CAN1_HANDLE();
