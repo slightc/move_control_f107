@@ -41,6 +41,18 @@ typedef struct
 } AOA_Report_t;
 
 /**
+ * @brief 
+ * 
+ */
+typedef struct
+{
+    unsigned char sof;
+    unsigned char length;
+    unsigned char type;
+    AOA_Report_t report;
+} AOA_Tag_t;
+
+/**
  * @brief AOA 请求帧
  * 
  */

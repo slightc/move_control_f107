@@ -1,6 +1,7 @@
 #include "aoa_uwb.h"
 
 static AOA_Report_t aoa_tag;
+static AOA_FollowTag_t aoa_follow_tag;
     /**
  * @briefaucCRCHi：
  * 
@@ -86,7 +87,7 @@ unsigned short Get_Crc16(unsigned char *pucFrame, unsigned char usLen)
  *      and angle information
  * 
  * @return ** AOA_FollowTag_t  current aog
- */ 
+ */
 AOA_Report_t *AOA_GetMsg(void)
 {
     return &aoa_tag;
@@ -102,6 +103,11 @@ void AOA_Tag_Handler(void)
     unsigned char buffer_lens;
     unsigned char data_buff;
     unsigned int read_data_len;
+    AOA_Tag_t tag;
+
+    tag.sof = AOA_SOF;
+    tag.type = AOA_REPORT_LEN;
+    tag.length = AOA_REPORT;
 
     //get the spec usart buffer length
     buffer_lens = GET_BUFFER_LEN();
@@ -115,13 +121,22 @@ void AOA_Tag_Handler(void)
             //读取跟随模块的数据的长度，并判断长度是不是19
             read_data_len = uart_read(USART2, &data_buff, 1, 10);
             if (read_data_len == 1 && data_buff == AOA_REPORT_LEN)
-            {   
+            {
                 //读取数据类型，判断是否是AOA_REPORT指令类型
                 read_data_len = uart_read(USART2, &data_buff, 1, 10);
                 if (read_data_len == 1 && data_buff == AOA_REPORT)
                 {
                     //读取数据域内容
-                    read_data_len = uart_read(USART2, (unsigned char *)&aoa_tag, AOA_REPORT_LEN-3,10);
+                    read_data_len = uart_read(USART2, (unsigned char *)&aoa_tag, AOA_REPORT_LEN - 3, 10);
+
+                    tag.report =aoa_tag;
+
+                    /*检验和计算，看能否通过检验和*/
+                    if (tag.report.checksum == Get_Crc16((unsigned char *)&tag, tag.length - 3))
+                    {
+                        aoa_follow_tag.angle = aoa_tag.angle;
+                        aoa_follow_tag.distance = aoa_tag.distance;
+                    }
                 }
             }
         }
