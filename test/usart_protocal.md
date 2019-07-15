@@ -21,5 +21,12 @@
 - 
 
 
+### 上位机下发数据
+- unsigned char 控制模式
+    - 0x00 远程控制模式
+    - 0x01 自动跟随模式
+    - 0x02 自动巡检模式
+- signed short 目标线速度(mm/s)
+- signed short 目标角速度(mmrad/s)
 
 -
