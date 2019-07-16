@@ -13,6 +13,8 @@
 
 osThreadId defaultTaskHandle;
 osThreadId uartTaskHandle;
+int16_t aoa_distance=0;
+int16_t aoa_angle=0;
 
 void led_blinkly(void const *argument){
   
@@ -26,20 +28,35 @@ void led_blinkly(void const *argument){
 
 void uart_test(void const *argument){
     UART_HandleTypeDef *p_huart1;
-    uint8_t send_str[] = "qweasdzxc";
+    uint8_t send_str[] = "qweasdzxc\n";
     AOA_Report_t *p=NULL;
+    int16_t distance=0;
   
     (void) argument;
     p_huart1 = GET_UART1_HANDLE();
 	for (;;)
     {   
+        p=wait_aoa_report_packet(100);
+        HAL_UART_Transmit(p_huart1,send_str,10,5);
+        if(p==NULL)
+        {
+            uart_ptint(USART1,"timeout",0,10);
+        }else{
+            uart_ptint(USART1,"have packet",0,10);
+            aoa_distance = (int16_t)CHG_INT16_HL(p->distance);
+            aoa_angle = (int16_t)CHG_INT16_HL(p->angle);
+            distance = 0.98*distance + 0.02*(int16_t)CHG_INT16_HL(p->distance);
+            uart_ptint(USART1,"d:",distance,10);
+            uart_ptint(USART1,"a:",(int16_t)CHG_INT16_HL(p->angle),10);
+        }
+        osDelay(50);
         // for(uint8_t i=0;i<100;i++){
         //     AOA_Tag_Handler();
         // }
         // p = AOA_GetMsg();
-        uart_read(USART1,send_str,10,10000);
-        HAL_UART_Transmit(p_huart1,send_str,10,5);
-        osDelay(500);
+        // uart_read(USART1,send_str,10,10000);
+        // HAL_UART_Transmit(p_huart1,send_str,10,5);
+        // osDelay(500);
         // uart_ptint(USART1,"d:",CHG_INT16_HL(p->distance),10);
         // uart_ptint(USART1,"a:",CHG_INT16_HL(p->angle),10);
     }

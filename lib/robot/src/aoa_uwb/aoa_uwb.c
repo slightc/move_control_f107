@@ -142,3 +142,36 @@ void AOA_Tag_Handler(void)
         }
     }
 }
+
+AOA_Report_t *wait_aoa_report_packet(uint32_t timeout)
+{
+    uint8_t rx_len = 0;
+    uint8_t packet[AOA_REPORT_LEN] = {0};
+    uint16_t checksum = 0;
+    AOA_Report_t *aoa_packet = AOA_GetMsg();
+
+    for(uint8_t i=0;i<AOA_REPORT_LEN;i++){
+        rx_len = uart_read(USART2, (packet+0), 1, timeout);
+        if(rx_len!=1) break;
+        if(packet[0]!=AOA_SOF) continue;
+
+        rx_len = uart_read(USART2, (packet+1), 1, timeout);
+        if(rx_len!=1) break;
+        if(packet[1]!=AOA_REPORT_LEN) continue;
+
+        rx_len = uart_read(USART2, (packet+2), 1, timeout);
+        if(rx_len!=1) break;
+        if(packet[2]!=AOA_REPORT) continue;
+
+        rx_len = uart_read(USART2, (packet+3), AOA_REPORT_LEN - 3, timeout);
+        if(rx_len!=(AOA_REPORT_LEN - 3)) break;
+        if(packet[AOA_REPORT_LEN-1]!=AOA_EOF) continue;
+
+        checksum = Get_Crc16(packet,AOA_REPORT_LEN - 3);
+        if( checksum == *((uint16_t *)(packet + AOA_REPORT_LEN - 3))){
+            memcpy(aoa_packet,(packet+3),AOA_REPORT_LEN - 3);
+            return aoa_packet;
+        }
+    }
+    return NULL;
+}

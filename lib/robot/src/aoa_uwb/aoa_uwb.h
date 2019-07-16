@@ -10,11 +10,11 @@ extern "C"
 #include "periphe/uart.h" 
 
 #define GET_BUFFER_LEN() get_uart_rx_count(USART2)
-#define AOA_SOF 0x59
-#define AOA_EOF 0x47
-#define AOA_REPORT 0x63
-#define AOA_REQUEST 0x64
-#define AOA_REPORT_LEN 19
+#define AOA_SOF        (0x59)
+#define AOA_EOF        (0x47)
+#define AOA_REPORT     (0x63)
+#define AOA_REQUEST    (0x64)
+#define AOA_REPORT_LEN (19)
 
 /**
  * @brief sof:侦起始符
@@ -26,18 +26,18 @@ typedef struct
     //unsigned char sof;
     //unsigned char length;
     //unsigned char type;
-    unsigned char frame_index;
-    char rx_rssi_first;
-    char rx_rssi_all;
-    char battery;
-    unsigned char key;
-    unsigned short tagID;
-    unsigned short distance;
-    short angle;
-    unsigned char status;
-    unsigned char quality;
-    unsigned short checksum;
-    unsigned char eof;
+    uint8_t  frame_index;
+    int8_t   rx_rssi_first;
+    int8_t   rx_rssi_all;
+    int8_t   battery;
+    uint8_t  key;
+    uint16_t tagID;
+    uint16_t distance;
+    int16_t  angle;
+    uint8_t  status;
+    uint8_t  quality;
+    uint16_t checksum;
+    uint8_t  eof;
 } AOA_Report_t;
 
 /**
@@ -46,9 +46,9 @@ typedef struct
  */
 typedef struct
 {
-    unsigned char sof;
-    unsigned char length;
-    unsigned char type;
+    uint8_t      sof;
+    uint8_t      length;
+    uint8_t      type;
     AOA_Report_t report;
 } AOA_Tag_t;
 
@@ -58,16 +58,16 @@ typedef struct
  */
 typedef struct
 {
-    unsigned char sof;
-    unsigned char length;
-    unsigned char type;
-    unsigned char frame_index;
-    unsigned char output_dist;
-    unsigned char status;
-    unsigned char battery;
-    unsigned char speed;
-    unsigned short checksum;
-    unsigned char eof;
+    uint8_t  sof;
+    uint8_t  length;
+    uint8_t  type;
+    uint8_t  frame_index;
+    uint8_t  output_dist;
+    uint8_t  status;
+    uint8_t  battery;
+    uint8_t  speed;
+    uint16_t checksum;
+    uint8_t  eof;
 } AOA_Request_t;
 
 /**
@@ -76,13 +76,14 @@ typedef struct
  */
 typedef struct
 {
-    unsigned short distance;
-    short angle;
+    uint16_t distance;
+    int16_t  angle;
 } AOA_FollowTag_t;
 
 unsigned short Get_Crc16(unsigned char *pucFrame, unsigned char usLen);
 AOA_Report_t *AOA_GetMsg(void);
 void AOA_Tag_Handler(void);
+AOA_Report_t *wait_aoa_report_packet(uint32_t timeout);
 
 #ifdef __cplusplus
 }
