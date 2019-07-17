@@ -18,22 +18,23 @@ extern "C"
         eAutoDectCtrlMode = 0x02
     } CtrlMode_t;
 
+typedef struct
+{
+    unsigned short sof;
+    char data_lens;
+    unsigned short voltage_mv;
+    CtrlMode_t ctrl_mode;
+    short rotate_vel_mm_s;
+    short move_vel_mmrad_s;
+    bool is_aoa_uwb_online;
+    unsigned check_sum;
+} protocal_fb_t;
     /**
  * @brief  底盘反馈数据结构体
  * 
  */
     typedef union protocal_types {
-        typedef struct
-        {
-            unsigned short sof;
-            char data_lens;
-            unsigned short voltage_mv;
-            CtrlMode_t ctrl_mode;
-            short rotate_vel_mm_s;
-            short move_vel_mmrad_s;
-            bool is_aoa_uwb_online;
-            unsigned check_sum;
-        } fdbk;
+        protocal_fb_t fdbk;
         unsigned char *raw;
     } PlatformFdbk_t;
 
@@ -41,7 +42,7 @@ extern "C"
      * @brief 上位机下发的控制结构体
      */
     typedef union {
-        struct cmd
+        struct
         {
             CtrlMode_t ctrl_mode;
             short rotate_vel_mm_s;

@@ -32,7 +32,7 @@ bool Protocol_MsgTransimit(unsigned char *str, unsigned short len)
  * @param len 数据长度
  * @return unsigned char 校验和
  */
-unsigned char Protocol_CalculateChecksum(unsigned char *str, unsigned short len) unsigned char *str, unsigned short len
+unsigned char Protocol_CalculateChecksum(unsigned char *str, unsigned short len)
 {
     unsigned char check_sum = 0x00;
 
