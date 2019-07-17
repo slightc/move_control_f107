@@ -13,6 +13,7 @@
 
 osThreadId defaultTaskHandle;
 osThreadId uartTaskHandle;
+osThreadId canTaskHandle;
 int16_t aoa_distance=0;
 int16_t aoa_angle=0;
 
@@ -37,17 +38,17 @@ void uart_test(void const *argument){
 	for (;;)
     {   
         p=wait_aoa_report_packet(100);
-        HAL_UART_Transmit(p_huart1,send_str,10,5);
+        // HAL_UART_Transmit(p_huart1,send_str,10,5);
         if(p==NULL)
         {
-            uart_ptint(USART1,"timeout",0,10);
+            // uart_ptint(USART1,"timeout",0,10);
         }else{
             uart_ptint(USART1,"have packet",0,10);
             aoa_distance = (int16_t)CHG_INT16_HL(p->distance);
             aoa_angle = (int16_t)CHG_INT16_HL(p->angle);
             distance = 0.98*distance + 0.02*(int16_t)CHG_INT16_HL(p->distance);
-            uart_ptint(USART1,"d:",distance,10);
-            uart_ptint(USART1,"a:",(int16_t)CHG_INT16_HL(p->angle),10);
+            // uart_ptint(USART1,"d:",distance,10);
+            // uart_ptint(USART1,"a:",(int16_t)CHG_INT16_HL(p->angle),10);
         }
         osDelay(50);
         // for(uint8_t i=0;i<100;i++){
@@ -62,12 +63,38 @@ void uart_test(void const *argument){
     }
 }
 
+void can_test(void const *argument){
+    CAN_HandleTypeDef *p_can1;
+    CAN_RxHeaderTypeDef can1_rx_header;
+    int8_t data[8],len;
+
+    (void) argument;
+
+    p_can1 = GET_CAN1_HANDLE();
+	for (;;)
+    {   
+        uart_ptint(USART1,"can_test",0,10);
+        len = HAL_CAN_GetRxFifoFillLevel(p_can1,CAN_FILTER_FIFO0);
+        if(len!=0){
+            HAL_CAN_GetRxMessage(p_can1,CAN_FILTER_FIFO0,&can1_rx_header,data);
+            uart_ptint(USART1,"id ",can1_rx_header.StdId,10);
+            uart_ptint(USART1,"DLC ",can1_rx_header.DLC,10);
+            uart_ptint(USART1,"d0 ",data[0],10);
+            uart_ptint(USART1,"d1 ",data[1],10);
+            uart_ptint(USART1,"d2 ",data[2],10);
+            uart_ptint(USART1,"d3 ",data[3],10);
+            uart_ptint(USART1,"d4 ",data[4],10);
+            uart_ptint(USART1,"d5 ",data[5],10);
+            uart_ptint(USART1,"d6 ",data[6],10);
+            uart_ptint(USART1,"d7 ",data[7],10);
+        }
+        osDelay(50);
+    }
+}
+
 void LED_Init();
 
 int main(void) {
-    CAN_HandleTypeDef *p_can1;
-    
-
     setSystemClock();
     SystemCoreClockUpdate();
     HAL_Init();
@@ -84,8 +111,10 @@ int main(void) {
     BSP_UART2_INIT();
 
     osThreadDef(uartTask, uart_test, osPriorityNormal, 0, 128);
+    osThreadDef(canTask, can_test, osPriorityNormal, 0, 128);
     osThreadDef(defaultTask, led_blinkly, osPriorityNormal, 0, 128);
     uartTaskHandle = osThreadCreate(osThread(uartTask),NULL);
+    canTaskHandle = osThreadCreate(osThread(canTask),NULL);
     defaultTaskHandle = osThreadCreate(osThread(defaultTask),NULL);
 
     // p_can1 = GET_CAN1_HANDLE();
