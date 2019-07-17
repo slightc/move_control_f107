@@ -18,6 +18,7 @@
 - signeg char 跟随模块是否在线
     - 0 掉线
     - 1 在线
+- unsigned char 校验和
 - 
 
 

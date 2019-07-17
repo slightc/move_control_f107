@@ -7,7 +7,7 @@ extern "C"
 #endif
 
     /**
- * @brief 
+ * @brief 控制模式枚举
  * 
  */
     typedef enum
@@ -19,11 +19,11 @@ extern "C"
     } CtrlMode_t;
 
     /**
- * @brief 
+ * @brief  底盘反馈数据结构体
  * 
  */
     typedef union protocal_types {
-        struct fdbk
+        typedef struct
         {
             unsigned short sof;
             char data_lens;
@@ -32,13 +32,13 @@ extern "C"
             short rotate_vel_mm_s;
             short move_vel_mmrad_s;
             bool is_aoa_uwb_online;
-        };
+            unsigned check_sum;
+        } fdbk;
         unsigned char *raw;
     } PlatformFdbk_t;
 
     /**
-     * @brief 
-     * 
+     * @brief 上位机下发的控制结构体
      */
     typedef union {
         struct cmd
