@@ -74,9 +74,9 @@ void can_test(void const *argument){
 	for (;;)
     {   
         uart_ptint(USART1,"can_test",0,10);
-        len = HAL_CAN_GetRxFifoFillLevel(p_can1,CAN_FILTER_FIFO0);
+        len = HAL_CAN_GetRxFifoFillLevel(p_can1,CAN_FILTER_FIFO1);
         if(len!=0){
-            HAL_CAN_GetRxMessage(p_can1,CAN_FILTER_FIFO0,&can1_rx_header,data);
+            HAL_CAN_GetRxMessage(p_can1,CAN_FILTER_FIFO1,&can1_rx_header,data);
             uart_ptint(USART1,"id ",can1_rx_header.StdId,10);
             uart_ptint(USART1,"DLC ",can1_rx_header.DLC,10);
             uart_ptint(USART1,"d0 ",data[0],10);

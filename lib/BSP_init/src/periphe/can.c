@@ -10,19 +10,31 @@ CAN_HandleTypeDef *get_can1_handle()
 void can1_filter_init()
 {
     CAN_FilterTypeDef can1_filter;
+    CAN_FilterTypeDef can1_MGS08_filter;
     CAN_HandleTypeDef *p_can1 = get_can1_handle();
 
-	can1_filter.FilterBank           = 0;
+	can1_filter.FilterBank           = 2;
 	can1_filter.FilterMode           = CAN_FILTERMODE_IDMASK;
 	can1_filter.FilterScale          = CAN_FILTERSCALE_32BIT;
 	can1_filter.FilterIdHigh         = 0x0000;
 	can1_filter.FilterIdLow          = 0x0000;
 	can1_filter.FilterMaskIdHigh     = 0x0000;
 	can1_filter.FilterMaskIdLow      = 0x0000;
-	can1_filter.FilterFIFOAssignment = 0;
+	can1_filter.FilterFIFOAssignment = CAN_RX_FIFO0;
 	can1_filter.FilterActivation     = ENABLE;
 
+	can1_MGS08_filter.FilterBank           = 0;
+	can1_MGS08_filter.FilterMode           = CAN_FILTERMODE_IDMASK;
+	can1_MGS08_filter.FilterScale          = CAN_FILTERSCALE_32BIT;
+	can1_MGS08_filter.FilterIdHigh         = 0x0000;
+	can1_MGS08_filter.FilterIdLow          = 0x0001;
+	can1_MGS08_filter.FilterMaskIdHigh     = 0x0000;
+	can1_MGS08_filter.FilterMaskIdLow      = 0x03ff;
+	can1_MGS08_filter.FilterFIFOAssignment = CAN_FILTER_FIFO1;
+	can1_MGS08_filter.FilterActivation     = ENABLE;
+
     HAL_CAN_ConfigFilter(p_can1,&can1_filter);
+    HAL_CAN_ConfigFilter(p_can1,&can1_MGS08_filter);
 }
 
 void can1_init()

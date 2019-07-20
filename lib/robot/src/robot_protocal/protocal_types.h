@@ -18,6 +18,17 @@ extern "C"
         eAutoDectCtrlMode = 0x02
     } CtrlMode_t;
 
+typedef struct
+{
+    unsigned short sof;
+    char data_lens;
+    unsigned short voltage_mv;
+    CtrlMode_t ctrl_mode;
+    short rotate_vel_mm_s;
+    short move_vel_mmrad_s;
+    bool is_aoa_uwb_online;
+    unsigned check_sum;
+} protocal_fb_t;
     /**
  * @brief  底盘反馈数据结构体
  * 
@@ -34,21 +45,21 @@ extern "C"
             bool is_aoa_uwb_online;
             unsigned check_sum;
         } fdbk;
-        unsigned char raw[12];
+        unsigned char raw[1];
     } PlatformFdbk_t;
 
     /**
      * @brief 上位机下发的控制结构体
      */
     typedef union {
-        struct cmd
+        struct
         {
             CtrlMode_t ctrl_mode;
             short rotate_vel_mm_s;
             short move_vel_mmrad_s;
             unsigned check_sum;
         };
-        unsigned char row[6];
+        unsigned char row[1];
     } PlatformCtrlCmd_t;
 
 #ifdef __cplusplus
