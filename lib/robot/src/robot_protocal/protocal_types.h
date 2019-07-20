@@ -22,8 +22,8 @@ extern "C"
  * @brief  底盘反馈数据结构体
  * 
  */
-    typedef union protocal_types {
-        typedef struct
+    typedef union {
+         struct
         {
             unsigned short sof;
             char data_lens;
@@ -34,7 +34,7 @@ extern "C"
             bool is_aoa_uwb_online;
             unsigned check_sum;
         } fdbk;
-        unsigned char *raw;
+        unsigned char raw[12];
     } PlatformFdbk_t;
 
     /**
@@ -46,8 +46,9 @@ extern "C"
             CtrlMode_t ctrl_mode;
             short rotate_vel_mm_s;
             short move_vel_mmrad_s;
+            unsigned check_sum;
         };
-        unsigned char *row;
+        unsigned char row[6];
     } PlatformCtrlCmd_t;
 
 #ifdef __cplusplus

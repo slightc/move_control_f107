@@ -32,7 +32,7 @@ bool Protocol_MsgTransimit(unsigned char *str, unsigned short len)
  * @param len 数据长度
  * @return unsigned char 校验和
  */
-unsigned char Protocol_CalculateChecksum(unsigned char *str, unsigned short len) unsigned char *str, unsigned short len
+unsigned char Protocol_CalculateChecksum(unsigned char *str, unsigned short len)
 {
     unsigned char check_sum = 0x00;
 
@@ -57,7 +57,7 @@ bool Protocol_PlatfromFdbk_ToController(PlatformFdbk_t fdbk_t)
     bool transimit_status;
 
     fdbk.fdbk = fdbk_t.fdbk;
-    
+
     /*计算校验和*/
     fdbk.fdbk.check_sum = Protocol_CalculateChecksum(fdbk.raw, sizeof(fdbk.fdbk) - 1);
 
@@ -68,8 +68,12 @@ bool Protocol_PlatfromFdbk_ToController(PlatformFdbk_t fdbk_t)
     if (transimit_status == true)
     {
         return true;
-    }else 
+    }
+    else
     {
         return false;
     }
 }
+
+
+
