@@ -57,7 +57,7 @@ bool Protocol_PlatfromFdbk_ToController(PlatformFdbk_t fdbk_t)
     bool transimit_status;
 
     fdbk.fdbk = fdbk_t.fdbk;
-    
+
     /*计算校验和*/
     fdbk.fdbk.check_sum = Protocol_CalculateChecksum(fdbk.raw, sizeof(fdbk.fdbk) - 1);
 
@@ -68,8 +68,12 @@ bool Protocol_PlatfromFdbk_ToController(PlatformFdbk_t fdbk_t)
     if (transimit_status == true)
     {
         return true;
-    }else 
+    }
+    else
     {
         return false;
     }
 }
+
+
+
