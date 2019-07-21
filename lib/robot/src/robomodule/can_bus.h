@@ -6,16 +6,24 @@
 
 #include "robomodule_type.h"
 
+#define ROBOMODULE_INIT() \
+    robomodule_set_can_handle(GET_CAN1_HANDLE());\
+    robomodule_can_reset(0,0,10);\
+    HAL_Delay(500);\
+    robomodule_can_set_mode(0,0,ROBOMODULE_VELOCITY_MODE,10)
+
+
 void robomodule_set_can_handle(CAN_HandleTypeDef *that_can_handle);
+void robomodule_set_max_pwm(int16_t max_pwm);
 uint8_t robomodule_can_reset(uint8_t group, uint8_t number, uint32_t timeout);
 uint8_t robomodule_can_set_mode(uint8_t group, uint8_t number, 
                                     uint8_t mode, uint32_t timeout);
 uint8_t robomodule_can_openloop_mode(uint8_t group, uint8_t number, 
                                         int16_t pwm, uint32_t timeout);
 uint8_t robomodule_can_current_mode(uint8_t group, uint8_t number, 
-                        int16_t max_pwm, int16_t current, uint32_t timeout);
+                        int16_t current, uint32_t timeout);
 uint8_t robomodule_can_velocity_mode(uint8_t group, uint8_t number, 
-                        int16_t max_pwm, int16_t velocity, uint32_t timeout);
+                        int16_t velocity, uint32_t timeout);
 uint8_t robomodule_can_position_mode(uint8_t group, uint8_t number, 
-                        int16_t max_pwm, int32_t position, uint32_t timeout);
+                        int32_t position, uint32_t timeout);
 #endif

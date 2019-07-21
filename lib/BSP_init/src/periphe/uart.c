@@ -187,7 +187,7 @@ void HAL_UART_ErrorCallback(UART_HandleTypeDef *huart)
     HAL_UART_Transmit(huart,msg,5,100);
 }
 
-void uart_ptint(USART_TypeDef *UARTx, uint8_t *str, int32_t data, int8_t mode)
+void uart_print(USART_TypeDef *UARTx, uint8_t *str, int32_t data, int8_t mode)
 {
     UART_HandleTypeDef *huart = get_uartx_handle(UARTx);
     uint16_t len=strlen(str);
@@ -202,29 +202,15 @@ void uart_ptint(USART_TypeDef *UARTx, uint8_t *str, int32_t data, int8_t mode)
     HAL_UART_Transmit(huart,end,len,10);
 }
 
-// int tenpow(int len)
-// {
-// 	int data = 1;
-// 	while (len--)
-// 		data = 10*data;
-// 	return data;
-// }
 
-// void usart_ptintf(USART_TypeDef *UARTx, char *str, float data, int len)
-// {
-//     UART_HandleTypeDef *huart = get_uartx_handle(UARTx);
-//     uint16_t len=strlen(str);
-//     uint8_t buffer[32];
-
-//     HAL_UART_Transmit(huart,str,len,10);
-// 	itoa((int)data, buffer, 10);
-// 	if (len)
-// 	{
-// 		strncat(buffer, ".", 1);
-// 		itoa((int)((data - (int)data) * tenpow(len)), stradd, 10);
-// 		strncat(buffer, stradd, 10);
-// 	}
-// 	usart2_send(buffer);
-// 	usart2_send("\n");
-// }
+void uart_printf(USART_TypeDef *UARTx, char *str, ...)
+{
+    UART_HandleTypeDef *huart = get_uartx_handle(UARTx);
+    uint8_t form_str[64];
+    va_list ap;
+    va_start(ap, str);
+    
+    vsprintf(form_str,str,ap);
+    HAL_UART_Transmit(huart,form_str,strlen(form_str),10);
+}
 

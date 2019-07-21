@@ -23,6 +23,7 @@
  * 为NULL时应该立即返回错误
  */
 static CAN_HandleTypeDef *this_can_handle=NULL;
+static int16_t robomodule_max_pwm=5000;
 
 static void set_array8_value(uint8_t *p_data,
     uint8_t d0,uint8_t d1,uint8_t d2,uint8_t d3,
@@ -46,6 +47,19 @@ static void set_array8_value(uint8_t *p_data,
 void robomodule_set_can_handle(CAN_HandleTypeDef *that_can_handle)
 {
     this_can_handle = that_can_handle;
+}
+
+/**
+ * @brief 设置max_pwm值
+ * 
+ * @param max_pwm 最大pwm输出值(0~5000) pwm值为5000时,输出电压为电源电压
+ */
+void robomodule_set_max_pwm(int16_t max_pwm)
+{
+    /** 限制pwm数据值 */
+    if(max_pwm < 0) max_pwm =-max_pwm;
+    if(max_pwm > 5000) max_pwm = 5000;
+    robomodule_max_pwm = max_pwm;
 }
 
 /**
@@ -169,23 +183,18 @@ uint8_t robomodule_can_openloop_mode(uint8_t group, uint8_t number,
  * 
  * @param group 指定组(0~7)
  * @param number 指定驱动(0~15) 0为广播数据
- * @param max_pwm 最大pwm输出值(0~5000) pwm值为5000时,输出电压为电源电压
  * @param current 电机电流(-32768~+32767) 单位mA
  * @param timeout 超时时间(ms 0~0xffff)
  * @return uint8_t errCode 错误码
  */
 uint8_t robomodule_can_current_mode(uint8_t group, uint8_t number, 
-                        int16_t max_pwm, int16_t current, uint32_t timeout)
+                        int16_t current, uint32_t timeout)
 {
     uint8_t can_data[8];
 
-    /** 限制pwm数据值 */
-    if(max_pwm < 0) max_pwm =-max_pwm;
-    if(max_pwm > 5000) max_pwm = 5000;
-
     /** 设置can负载数据 */
     set_array8_value(can_data,
-        GET_INT16_H(max_pwm),GET_INT16_L(max_pwm),
+        GET_INT16_H(robomodule_max_pwm),GET_INT16_L(robomodule_max_pwm),
         GET_INT16_H(current),GET_INT16_L(current),
         0x55,0x55,0x55,0x55);
     
@@ -199,23 +208,18 @@ uint8_t robomodule_can_current_mode(uint8_t group, uint8_t number,
  * 
  * @param group 指定组(0~7)
  * @param number 指定驱动(0~15) 0为广播数据
- * @param max_pwm 最大pwm输出值(0~5000) pwm值为5000时,输出电压为电源电压
  * @param velocity 电机转速(-32768~+32767) 单位RPM
  * @param timeout 超时时间(ms 0~0xffff)
  * @return uint8_t errCode 错误码
  */
 uint8_t robomodule_can_velocity_mode(uint8_t group, uint8_t number, 
-                        int16_t max_pwm, int16_t velocity, uint32_t timeout)
+                        int16_t velocity, uint32_t timeout)
 {
     uint8_t can_data[8];
 
-    /** 限制pwm数据值 */
-    if(max_pwm < 0) max_pwm =-max_pwm;
-    if(max_pwm > 5000) max_pwm = 5000;
-
     /** 设置can负载数据 */
     set_array8_value(can_data,
-        GET_INT16_H(max_pwm) ,GET_INT16_L(max_pwm),
+        GET_INT16_H(robomodule_max_pwm) ,GET_INT16_L(robomodule_max_pwm),
         GET_INT16_H(velocity),GET_INT16_L(velocity),
         0x55,0x55,0x55,0x55);
     
@@ -229,23 +233,18 @@ uint8_t robomodule_can_velocity_mode(uint8_t group, uint8_t number,
  * 
  * @param group 指定组(0~7)
  * @param number 指定驱动(0~15) 0为广播数据
- * @param max_pwm 最大pwm输出值(0~5000) pwm值为5000时,输出电压为电源电压
  * @param position 电机位置(-2147483648~+2147483647) 单位qc(4倍编码器值)
  * @param timeout 超时时间(ms 0~0xffff)
  * @return uint8_t errCode 错误码
  */
 uint8_t robomodule_can_position_mode(uint8_t group, uint8_t number, 
-                        int16_t max_pwm, int32_t position, uint32_t timeout)
+                        int32_t position, uint32_t timeout)
 {
     uint8_t can_data[8];
 
-    /** 限制pwm数据值 */
-    if(max_pwm < 0) max_pwm =-max_pwm;
-    if(max_pwm > 5000) max_pwm = 5000;
-
     /** 设置can负载数据 */
     set_array8_value(can_data,
-        GET_INT16_H(max_pwm) ,GET_INT16_L(max_pwm),
+        GET_INT16_H(robomodule_max_pwm) ,GET_INT16_L(robomodule_max_pwm),
         0x55,0x55,
         GET_DATA_SHFIT(position,24),GET_DATA_SHFIT(position,16),
         GET_DATA_SHFIT(position,8), GET_DATA_SHFIT(position,0));

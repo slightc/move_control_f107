@@ -27,7 +27,7 @@ void can1_filter_init()
 	can1_MGS08_filter.FilterMode           = CAN_FILTERMODE_IDMASK;
 	can1_MGS08_filter.FilterScale          = CAN_FILTERSCALE_32BIT;
 	can1_MGS08_filter.FilterIdHigh         = 0x0000;
-	can1_MGS08_filter.FilterIdLow          = 0x0001;
+	can1_MGS08_filter.FilterIdLow          = 0x0030;
 	can1_MGS08_filter.FilterMaskIdHigh     = 0x0000;
 	can1_MGS08_filter.FilterMaskIdLow      = 0x03ff;
 	can1_MGS08_filter.FilterFIFOAssignment = CAN_FILTER_FIFO1;
