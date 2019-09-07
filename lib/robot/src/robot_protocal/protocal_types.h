@@ -6,6 +6,13 @@ extern "C"
 {
 #endif
 
+#define PROTOCOL_SOF_0 0x5a
+#define PROTOCOL_SOF_1 0xa5
+#define PROTOCOL_EOF   0xed
+#define PROTOCOL_DATA_LEN 10
+#define PROTOCOL_PACKAGE_LEN (PROTOCOL_DATA_LEN+3)
+
+
     /**
  * @brief 控制模式枚举
  * 

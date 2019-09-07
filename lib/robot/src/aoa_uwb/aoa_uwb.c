@@ -143,10 +143,12 @@ void AOA_Tag_Handler(void)
     }
 }
 
+uint8_t aoa_temp_packet[AOA_REPORT_LEN] = {0};
+
 AOA_Report_t *wait_aoa_report_packet(uint32_t timeout)
 {
     uint8_t rx_len = 0;
-    uint8_t packet[AOA_REPORT_LEN] = {0};
+    uint8_t *packet=aoa_temp_packet;
     uint16_t checksum = 0;
     AOA_Report_t *aoa_packet = AOA_GetMsg();
 

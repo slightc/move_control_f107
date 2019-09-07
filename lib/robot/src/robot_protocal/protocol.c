@@ -75,5 +75,42 @@ bool Protocol_PlatfromFdbk_ToController(PlatformFdbk_t fdbk_t)
     }
 }
 
+uint8_t *send_protocol_package(uint8_t *in, uint32_t timeout){
+    uint8_t send_data[3+PROTOCOL_DATA_LEN] = {0};
+    send_data[0] = PROTOCOL_SOF_0;
+    send_data[1] = PROTOCOL_SOF_1;
+    send_data[2] = PROTOCOL_DATA_LEN;
+    send_data[2+PROTOCOL_DATA_LEN] = PROTOCOL_EOF;
+    memcpy((send_data+3),in,PROTOCOL_DATA_LEN-1);
+    HAL_UART_Transmit(get_uartx_handle(USART1),send_data,3+PROTOCOL_DATA_LEN,10);
+}
 
+uint8_t *wait_protocol_package(uint8_t *out, uint32_t timeout){
+    uint8_t package[PROTOCOL_PACKAGE_LEN] = {0};
+    uint8_t rx_len = 0;
+    uint16_t checksum = 0;
 
+    for(uint8_t i=0;i<PROTOCOL_PACKAGE_LEN;i++){
+        rx_len = uart_read(PROTOCOL_USART_PORT, (package+0), 1, timeout);
+        if(rx_len!=1) break;
+        if(package[0]!=PROTOCOL_SOF_0) continue;
+
+        rx_len = uart_read(PROTOCOL_USART_PORT, (package+1), 1, timeout);
+        if(rx_len!=1) break;
+        if(package[1]!=PROTOCOL_SOF_1) continue;
+
+        rx_len = uart_read(PROTOCOL_USART_PORT, (package+2), PROTOCOL_DATA_LEN, timeout);
+        if(rx_len!=PROTOCOL_DATA_LEN) break;
+        // if(package[2]!=AOA_REPORT) continue;
+
+        rx_len = uart_read(PROTOCOL_USART_PORT, (package+2+PROTOCOL_DATA_LEN), 1, timeout);
+        if(rx_len!=1) break;
+        if(package[2+PROTOCOL_DATA_LEN]!=PROTOCOL_EOF){
+            continue;
+        }else{
+            memcpy(out,(package+2),PROTOCOL_DATA_LEN);
+            return out;
+        }
+    }
+    return NULL;
+}

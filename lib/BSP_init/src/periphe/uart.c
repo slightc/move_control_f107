@@ -205,12 +205,12 @@ void uart_print(USART_TypeDef *UARTx, uint8_t *str, int32_t data, int8_t mode)
 
 void uart_printf(USART_TypeDef *UARTx, char *str, ...)
 {
-    UART_HandleTypeDef *huart = get_uartx_handle(UARTx);
-    uint8_t form_str[64];
-    va_list ap;
-    va_start(ap, str);
+    // UART_HandleTypeDef *huart = get_uartx_handle(UARTx);
+    // uint8_t form_str[64];
+    // va_list ap;
+    // va_start(ap, str);
     
-    vsprintf(form_str,str,ap);
-    HAL_UART_Transmit(huart,form_str,strlen(form_str),10);
+    // vsprintf(form_str,str,ap);
+    // HAL_UART_Transmit(huart,form_str,strlen(form_str),10);
 }
 
